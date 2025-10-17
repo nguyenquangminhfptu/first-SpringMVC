@@ -145,6 +145,25 @@
             transition: background-color 0.3s;
         }
 
+
+/*css của department*/
+        .nav-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #02CAA9;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .nav-btn:hover {
+            background-color: #009f8a;
+        }
+
+
     </style>
 </head>
 <body>
@@ -155,6 +174,10 @@
 <c:if test="${not empty role}">
     <div class="warn">${role}</div>
 </c:if>
+<!-- Link sang trang quản lý phòng ban -->
+<a href="${pageContext.request.contextPath}/departments"
+   class="nav-btn">Manage Departments</a>
+
 
 
 <form:form modelAttribute="employee" method="post"
