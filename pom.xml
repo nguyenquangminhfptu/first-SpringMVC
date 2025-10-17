@@ -73,11 +73,37 @@
             <scope>test</scope>
         </dependency>
 
+
+
     </dependencies>
+
+<!--    <build>-->
+<!--        <finalName>MyMVC</finalName>-->
+<!--    </build>-->
 
     <build>
         <finalName>MyMVC</finalName>
+
+        <plugins>
+            <!-- 🔹 Plugin giúp đóng gói thành WAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+
+            <!-- 🔹 Nếu bạn muốn sau này có thể chạy bằng java -jar -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
+
+
 
     <!-- ✅ Bổ sung để Maven chắc chắn tải được driver -->
     <repositories>
