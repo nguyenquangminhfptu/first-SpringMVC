@@ -1,0 +1,20 @@
+name: Java CI with Maven (Spring MVC)
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - run: mvn -B clean package --file pom.xml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MyMVC-war
+          path: target/*.war
