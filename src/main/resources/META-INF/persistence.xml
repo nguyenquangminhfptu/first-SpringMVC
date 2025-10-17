@@ -7,6 +7,8 @@
 
     <persistence-unit name="myMVC" transaction-type="RESOURCE_LOCAL">
         <class>org.dao.User</class>
+        <class>org.dao.Employee</class>
+        <class>org.dao.Department</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>

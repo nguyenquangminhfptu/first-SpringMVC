@@ -2,6 +2,7 @@ package org.service;
 
 import org.dao.Employee;
 import org.dao.EmployeeDao;
+import org.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,38 +12,25 @@ import java.util.List;
 public class EmployeeService {
 
     @Autowired
-    private EmployeeDao employeeDao;
+    private EmployeeRepository employeeRepository;
 
-    public List<Employee> getAllEmployees() {
-        return employeeDao.findAll();
+    public boolean addEmployee(Employee employee) {
+        return employeeRepository.addEmployee(employee);
     }
 
-    public Employee getEmployeeById(int id) {
-        return employeeDao.findById(id);
+    public Employee getEmployee(int id) {
+        return employeeRepository.getEmployee(id);
     }
 
-    public void deleteEmployee(int id) {
-        employeeDao.delete(id);
+    public boolean updateEmployee(Employee employee) {
+        return employeeRepository.updateEmployee(employee);
     }
 
-    public Employee saveEmployee(Employee employee) {
-        // Chuẩn hoá dữ liệu cơ bản
-        if (employee.getName() != null) employee.setName(employee.getName().trim());
-        if (employee.getDepartment() != null) employee.setDepartment(employee.getDepartment().trim());
+    public boolean deleteEmployee(int id) {
+        return employeeRepository.deleteEmployee(id);
+    }
 
-        // Chỉ chấp nhận URL bắt đầu bằng http/https; nếu rỗng thì để null
-        String url = employee.getImageUrl();
-        if (url != null && !url.isBlank()) {
-            url = url.trim();
-            if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-                // nếu không hợp lệ → bỏ qua
-                url = null;
-            }
-        } else {
-            url = null;
-        }
-        employee.setImageUrl(url);
-
-        return employeeDao.save(employee);
+    public List<Employee> getAllEmployee() {
+        return employeeRepository.getAllEmployee();
     }
 }

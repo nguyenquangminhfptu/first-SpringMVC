@@ -1,46 +1,86 @@
 package org.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.dao.Employee;
+import org.dao.User;
+import org.service.DepartmentService;
 import org.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Controller
-@RequestMapping("/employees")
 public class EmployeeController {
-
     @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private DepartmentService departmentService;
 
-    // Trang chính: bảng + hàng đầu để add / edit inline
-    @GetMapping("")
-    public String list(@RequestParam(value = "editId", required = false) Integer editId, Model model) {
-        List<Employee> list = employeeService.getAllEmployees();
-        model.addAttribute("employees", list);
-
-        // Nếu có editId → nạp employee vào form inline; ngược lại form rỗng cho Add
-        Employee formModel = (editId != null) ? employeeService.getEmployeeById(editId) : new Employee();
-        model.addAttribute("formEmployee", formModel);
-        model.addAttribute("isEditing", editId != null);
-
-        return "employee-list";
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "login";
     }
 
-    // Lưu (Add hoặc Update) tuỳ theo id=0 hay id>0
-    @PostMapping("/save")
-    public String save(@ModelAttribute("formEmployee") Employee employee) {
-        employeeService.saveEmployee(employee);
-        return "redirect:/employees";
+    @GetMapping("/employeeAction")
+    public String handleGetDirectAccess(HttpSession session) {
+        return "redirect:/home";
     }
 
-    // Xoá
+    @GetMapping("/home")
+    public String home(Model model) {
+        model.addAttribute("employee", new Employee());
+        model.addAttribute("departments", departmentService.getAlDepartments());
+        model.addAttribute("list", employeeService.getAllEmployee());
+        return "home";
+    }
+
     @GetMapping("/delete")
-    public String delete(@RequestParam("id") int id) {
+    public String deleteEmployee(@RequestParam("id") int id, Model model) {
+        // check role
         employeeService.deleteEmployee(id);
-        return "redirect:/employees";
+        model.addAttribute("employee", new Employee());
+        model.addAttribute("departments", departmentService.getAlDepartments());
+        model.addAttribute("list", employeeService.getAllEmployee());
+        return "home";
     }
+
+    //giup hien thị thong tin cho nguoi dung sua
+    @GetMapping("/edit")
+    public String editEmployee(@RequestParam("id") int id, Model model) {
+        // check role
+        Employee emp = employeeService.getEmployee(id);
+        model.addAttribute("employee", emp);
+        model.addAttribute("departments", departmentService.getAlDepartments());
+        model.addAttribute("list", employeeService.getAllEmployee());
+        return "home";
+    }
+
+    @PostMapping("/employeeAction")
+    public String doaction(Employee employee, @RequestParam("action") String action, Model model,HttpSession session    ) {
+        User user = (User) session.getAttribute("user");
+        if(user.getRole() !=1) {
+            model.addAttribute("role", "employee has no role CRUD");
+        }
+        else if(user.getRole() ==1) {
+            switch (action) {
+                case "Add":
+                    employee.setId(0);
+                    employeeService.addEmployee(employee);
+                    break;
+                case "Update":
+                    employeeService.updateEmployee(employee);
+                    break;
+            }
+        }
+        model.addAttribute("employee", new Employee());
+        model.addAttribute("departments", departmentService.getAlDepartments());
+        model.addAttribute("list", employeeService.getAllEmployee());
+
+        return "home";
+    }
+
 }

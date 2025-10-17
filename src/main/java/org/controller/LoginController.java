@@ -1,6 +1,8 @@
 package org.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.dao.User;
 import org.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,41 +14,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class LoginController {
 
-
-    private final UserService userService;
     @Autowired
-    public LoginController(UserService userService) { // ✅ Spring tự truyền vào
-        this.userService = userService;
-    }
+    private UserService userService;
 
     @GetMapping("/")
-    public String login() {
+    public String loginpage(Model model) {
         return "login";
     }
 
-
     @PostMapping("/login")
-    public String checkLogin(@RequestParam("username") String username,
-                             @RequestParam("password") String password,
-                             Model model,
-                             HttpServletRequest request) { // 👉 thêm dòng này
-        if (userService.checkUser(username, password)) {
-            // --- Dòng quan trọng để lưu session ---
-            request.getSession().setAttribute("username", username);
-            return "redirect:/employees";
-        } else {
-            model.addAttribute("error", "Invalid username or password");
+    public String tohome(User user, Model model, HttpSession session) {
+        User us = userService.checkAccount(user.getUsername(), user.getPassword());
+        session.setAttribute("user", us);
+
+        if (us != null && us.getRole() < 3) {
+            session.setAttribute("username", us.getUsername());
+            return "redirect:/home";
+        }
+        else {
+            session.setAttribute("username", "Account is invalid");
             return "login";
         }
     }
 }
 
-//        // Simple check (for demo)
-//        if ("admin".equals(username) && "123".equals(password)) {
-//            model.addAttribute("username", username);
-//            return "welcome"; // redirect to another JSP (will create below)
-//        } else {
-//            model.addAttribute("error", "Invalid username or password!");
-//            return "login";
-//        }
 

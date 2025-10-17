@@ -1,41 +1,63 @@
 package org.dao;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.TypedQuery;
-import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
-@Service
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.NoResultException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+@Repository
 public class UserDao {
 
-    private static final EntityManagerFactory emf =
-            Persistence.createEntityManagerFactory("myMVC"); // Đọc persistence.xml trong META-INF
-
-    public boolean checkAccount(String username, String password) {
-        EntityManager em = emf.createEntityManager();
-
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
+    public User checkAccount(String username, String password) {
+        EntityManager em = entityManagerFactory.createEntityManager();
         try {
-            TypedQuery<User> query = em.createQuery(
-                    "SELECT u FROM User u WHERE u.username = :username AND u.password = :password",
-                    User.class
-            );
-            query.setParameter("username", username.trim());
-            query.setParameter("password", password.trim());
+            return em.createQuery("select u from User u where u.username = :us and u.password = :ps", User.class)
+                    .setParameter("us", username)
+                    .setParameter("ps", password)
+                    .getSingleResult();
 
-            // Nếu có kết quả => tài khoản tồn tại
-            return query.getResultStream().findFirst().isPresent();
-
+        } catch (NoResultException e) {
+            System.out.println("User not found");
+            return null;
         } finally {
-            em.close(); // Đóng EntityManager sau khi xong
+            em.close();
         }
     }
 
-    // Gọi khi shutdown ứng dụng (nếu cần)
-    public static void closeFactory() {
-        if (emf.isOpen()) {
-            emf.close();
+    public User findByUsername(String username) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            return em.createQuery(
+                            "SELECT u FROM User u WHERE u.username = :username", User.class)
+                    .setParameter("username", username)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
         }
     }
+
+    public boolean addUser(User user) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try{
+            em.getTransaction().begin();
+            em.merge(user);
+            em.getTransaction().commit();
+            return true;
+        } catch(Exception e){
+            System.out.println("error : " + e.getMessage());
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+        } finally {
+            em.close();
+        }
+        return false;
+    }
+
 }

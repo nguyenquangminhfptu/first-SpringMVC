@@ -3,13 +3,20 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="
            http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
-           http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+           http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+           http://www.springframework.org/schema/tx https://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <!-- Scan controller -->
-    <context:component-scan base-package="org.controller"/>
+    <!-- Scan all components -->
+    <context:component-scan base-package="org.controller, org.service, org.dao, org.repository, org.config" />
+    <context:annotation-config/>
+    
+    <!-- JPA Configuration is now in JpaConfig.java -->
+    <tx:annotation-driven/>
+    
     <mvc:annotation-driven/>
     <mvc:default-servlet-handler/>
 
@@ -28,9 +35,6 @@
             <bean class="org.interceptor.LoginInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
-
-    <context:component-scan base-package="org.controller, org.service, org.dao" />
-    <context:annotation-config/>
 
 
 </beans>
